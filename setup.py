@@ -2,13 +2,22 @@
 # -*- coding: utf-8 -*-
 
 import os
+from setuptools import setup
+from setuptools.command.test import test as TestCommand
 import sys
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.test_args)
+        sys.exit(errno)
+
 
 readme = open('README.rst').read()
 
@@ -42,5 +51,10 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
     ],
-    test_suite='tests',
+    tests_require=[
+        "pytest==2.5.2",
+        "pytest-cov==1.6",
+        "httpretty==0.8.0",
+    ],
+    cmdclass = {'test': PyTest},
 )
