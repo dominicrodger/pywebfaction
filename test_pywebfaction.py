@@ -100,7 +100,8 @@ def test_failed_login():
             [
                 {
                     'faultCode': 1,
-                    'faultString': '&lt;class \'webfaction_api.exceptions.LoginError\'&gt;:',
+                    'faultString': ('&lt;class \'webfaction_api.exceptions'
+                                    '.LoginError\'&gt;:'),
                 }
             ]
         ),

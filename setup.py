@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 import sys
@@ -56,5 +55,5 @@ setup(
         "pytest-cov==1.6",
         "httpretty==0.8.0",
     ],
-    cmdclass = {'test': PyTest},
+    cmdclass={'test': PyTest},
 )
