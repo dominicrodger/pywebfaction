@@ -207,7 +207,10 @@ def test_create_email_forwarder():
     api = WebFactionAPI('theuser', 'foobar')
     api.create_email_forwarder(
         'foo@example.org',
-        'test@example.com,bar@example.net'
+        [
+            'test@example.com',
+            'bar@example.net'
+        ]
     )
 
     request = StringIO(httpretty.last_request().parsed_body)

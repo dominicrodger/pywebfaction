@@ -55,5 +55,5 @@ class WebFactionAPI(object):
         self.server.create_email(
             self.session_id,
             email_address,
-            forwarding_addresses
+            ','.join(forwarding_addresses)
         )
