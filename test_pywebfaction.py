@@ -137,7 +137,7 @@ def test_list_emails():
                             'autoresponder_from': '',
                             'autoresponse_subject': '',
                             'autoresponse_message': '',
-                            'targets': ',foo@example.org',
+                            'targets': 'cheesebox,foo@example.org',
                             'autoresponder_on': 0,
                             'email_address': 'bar@example.net',
                             'id': 73,
@@ -152,6 +152,14 @@ def test_list_emails():
     api = WebFactionAPI('theuser', 'foobar')
     emails = api.list_emails()
     assert len(emails) == 2
+
+    assert emails[0].address == 'foo@example.net'
+    assert emails[0].mailboxes == []
+    assert emails[0].forwards_to == ['foo@example.com']
+
+    assert emails[1].address == 'bar@example.net'
+    assert emails[1].mailboxes == ['cheesebox']
+    assert emails[1].forwards_to == ['foo@example.org']
 
     # Test the request looked like we expected
     request = StringIO(httpretty.last_request().parsed_body)

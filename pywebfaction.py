@@ -14,7 +14,21 @@ class WebFactionAPI(object):
         self.session_id, _ = self.server.login(self.username, password)
 
     def list_emails(self):
-        return self.server.list_emails(self.session_id)
+        class Email(object):
+            def __init__(self, entry):
+                def is_mailbox(target):
+                    return target.find('@') == -1
+
+                self.address = entry['email_address']
+                targets = entry['targets'].split(',')
+                self.mailboxes = [e for e in targets
+                                  if is_mailbox(e) and e]
+                self.forwards_to = [e for e in targets
+                                    if not is_mailbox(e) and e]
+
+        response = self.server.list_emails(self.session_id)
+
+        return [Email(r) for r in response]
 
     def create_email(self, email_address):
         # Need to generate a mailbox name (may only contain lowercase
