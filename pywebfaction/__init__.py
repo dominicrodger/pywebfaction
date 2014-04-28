@@ -35,6 +35,7 @@ class WebFactionAPI(object):
             )
         except xmlrpclib.Fault:
             self.server.delete_mailbox(self.session_id, mailbox)
+            raise
 
     def create_email_forwarder(self, email_address, forwarding_addresses):
         self.server.create_email(
