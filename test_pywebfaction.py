@@ -172,3 +172,52 @@ def test_list_emails():
     assert len(session) == 1
     assert method[0].text == 'list_emails'
     assert session[0].text == 'thesession_id'
+
+
+@httpretty.activate
+def test_create_email_forwarder():
+    httpretty.register_uri(
+        httpretty.POST,
+        WEBFACTION_API_ENDPOINT,
+        responses=[
+            httpretty.Response(
+                body=generate_login_response(),
+                content_type="text/xml"
+            ),
+            httpretty.Response(
+                body=generate_response(
+                    {
+                        'autoresponder_on': 0,
+                        'script_machine': '',
+                        'autoresponse_subject': '',
+                        'autoresponder_from': '',
+                        'script_path': '',
+                        'autoresponse_message': '',
+                        'email_address': 'foo@example.net',
+                        'id': 72,
+                        'autoresponse_from': '',
+                        'targets': 'test@example.com,foo@example.com',
+                    },
+                ),
+                content_type="text/xml"
+            )
+        ],
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    api.create_email_forwarder(
+        'foo@example.org',
+        'test@example.com,bar@example.net'
+    )
+
+    request = StringIO(httpretty.last_request().parsed_body)
+    tree = etree.parse(request)
+    method = tree.xpath('/methodCall/methodName')
+    parameters = tree.xpath('/methodCall/params/param/value/string')
+
+    assert len(method) == 1
+    assert len(parameters) == 3
+    assert method[0].text == 'create_email'
+    assert parameters[0].text == 'thesession_id'
+    assert parameters[1].text == 'foo@example.org'
+    assert parameters[2].text == 'test@example.com,bar@example.net'
