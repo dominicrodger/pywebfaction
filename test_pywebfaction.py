@@ -215,3 +215,28 @@ def test_create_email_forwarder():
     assert parameters[0].text == 'thesession_id'
     assert parameters[1].text == 'foo@example.org'
     assert parameters[2].text == 'test@example.com,bar@example.net'
+
+
+@httpretty.activate
+def test_create_email():
+    register_response(
+        generate_response(
+            {
+                'password': 'password1',
+            },
+        ),
+        generate_response(
+            {
+                'email_address': 'foo@example.net',
+                'id': 42,
+                'targets': 'foobar9871',
+            },
+        )
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    response = api.create_email('foo@example.org')
+
+    assert response.password == 'password1'
+    assert response.mailbox == 'foobar9871'
+    assert response.email_id == 42

@@ -34,19 +34,30 @@ class WebFactionAPI(object):
         # Need to generate a mailbox name (may only contain lowercase
         # letters, numbers and _)
         mailbox = 'foobar9871'
-        result = self.server.create_mailbox(
+        mailbox_result = self.server.create_mailbox(
             self.session_id,
             mailbox
         )
 
-        print "Password for the new mailbox is: %s" % result['password']
+        class EmailRequestResponse(object):
+            def __init__(self, mailbox, password, email_id):
+                self.mailbox = mailbox
+                self.password = password
+                self.email_id = email_id
 
         try:
-            self.server.create_email(
+            email_result = self.server.create_email(
                 self.session_id,
                 email_address,
                 mailbox
             )
+
+            return EmailRequestResponse(
+                mailbox,
+                mailbox_result['password'],
+                email_result['id'],
+            )
+
         except xmlrpclib.Fault:
             self.server.delete_mailbox(self.session_id, mailbox)
             raise
