@@ -83,6 +83,23 @@ def generate_login_response():
     )
 
 
+def register_response(response):
+    httpretty.register_uri(
+        httpretty.POST,
+        WEBFACTION_API_ENDPOINT,
+        responses=[
+            httpretty.Response(
+                body=generate_login_response(),
+                content_type="text/xml"
+            ),
+            httpretty.Response(
+                body=response,
+                content_type="text/xml"
+            )
+        ],
+    )
+
+
 @httpretty.activate
 def test_successful_login():
     httpretty.register_uri(
@@ -120,40 +137,21 @@ def test_failed_login():
 
 @httpretty.activate
 def test_list_emails():
-    httpretty.register_uri(
-        httpretty.POST,
-        WEBFACTION_API_ENDPOINT,
-        responses=[
-            httpretty.Response(
-                body=generate_login_response(),
-                content_type="text/xml"
-            ),
-            httpretty.Response(
-                body=generate_response(
-                    [
-                        {
-                            'autoresponder_from': '',
-                            'autoresponse_subject': '',
-                            'autoresponse_message': '',
-                            'targets': ',foo@example.com',
-                            'autoresponder_on': 0,
-                            'email_address': 'foo@example.net',
-                            'id': 72,
-                        },
-                        {
-                            'autoresponder_from': '',
-                            'autoresponse_subject': '',
-                            'autoresponse_message': '',
-                            'targets': 'cheesebox,foo@example.org',
-                            'autoresponder_on': 0,
-                            'email_address': 'bar@example.net',
-                            'id': 73,
-                        }
-                    ]
-                ),
-                content_type="text/xml"
-            )
-        ],
+    register_response(
+        generate_response(
+            [
+                {
+                    'targets': ',foo@example.com',
+                    'email_address': 'foo@example.net',
+                    'id': 72,
+                },
+                {
+                    'targets': 'cheesebox,foo@example.org',
+                    'email_address': 'bar@example.net',
+                    'id': 73,
+                }
+            ]
+        )
     )
 
     api = WebFactionAPI('theuser', 'foobar')
@@ -182,32 +180,14 @@ def test_list_emails():
 
 @httpretty.activate
 def test_create_email_forwarder():
-    httpretty.register_uri(
-        httpretty.POST,
-        WEBFACTION_API_ENDPOINT,
-        responses=[
-            httpretty.Response(
-                body=generate_login_response(),
-                content_type="text/xml"
-            ),
-            httpretty.Response(
-                body=generate_response(
-                    {
-                        'autoresponder_on': 0,
-                        'script_machine': '',
-                        'autoresponse_subject': '',
-                        'autoresponder_from': '',
-                        'script_path': '',
-                        'autoresponse_message': '',
-                        'email_address': 'foo@example.net',
-                        'id': 72,
-                        'autoresponse_from': '',
-                        'targets': 'test@example.com,foo@example.com',
-                    },
-                ),
-                content_type="text/xml"
-            )
-        ],
+    register_response(
+        generate_response(
+            {
+                'email_address': 'foo@example.net',
+                'id': 72,
+                'targets': 'test@example.com,foo@example.com',
+            },
+        )
     )
 
     api = WebFactionAPI('theuser', 'foobar')
