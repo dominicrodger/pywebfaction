@@ -83,20 +83,23 @@ def generate_login_response():
     )
 
 
-def register_response(response):
+def register_response(*args):
+    responses = [httpretty.Response(
+        body=generate_login_response(),
+        content_type="text/xml"
+    ), ]
+
+    responses.extend([
+        httpretty.Response(
+            body=r,
+            content_type="text/xml"
+        )
+        for r in args])
+
     httpretty.register_uri(
         httpretty.POST,
         WEBFACTION_API_ENDPOINT,
-        responses=[
-            httpretty.Response(
-                body=generate_login_response(),
-                content_type="text/xml"
-            ),
-            httpretty.Response(
-                body=response,
-                content_type="text/xml"
-            )
-        ],
+        responses=responses,
     )
 
 
