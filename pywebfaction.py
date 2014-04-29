@@ -52,8 +52,10 @@ class WebFactionAPI(object):
             raise
 
     def create_email_forwarder(self, email_address, forwarding_addresses):
-        self.server.create_email(
+        result = self.server.create_email(
             self.session_id,
             email_address,
             ','.join(forwarding_addresses)
         )
+
+        return result['id']

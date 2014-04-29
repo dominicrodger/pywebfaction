@@ -191,13 +191,15 @@ def test_create_email_forwarder():
     )
 
     api = WebFactionAPI('theuser', 'foobar')
-    api.create_email_forwarder(
+    email_id = api.create_email_forwarder(
         'foo@example.org',
         [
             'test@example.com',
             'bar@example.net'
         ]
     )
+
+    assert email_id == 72
 
     request = StringIO(httpretty.last_request().parsed_body)
     tree = etree.parse(request)
