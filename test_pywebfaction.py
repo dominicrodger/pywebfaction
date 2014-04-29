@@ -7,6 +7,15 @@ from pywebfaction import WebFactionAPI, WEBFACTION_API_ENDPOINT
 
 
 def get_response_value(item):
+    if isinstance(item, list):
+        rval = "<value><array><data>"
+
+        for value in item:
+            rval += get_response_value(value)
+
+        rval += "</data></array></value>"
+        return rval
+
     if isinstance(item, basestring):
         return '<value><string>%s</string></value>\n' % item
 
@@ -26,19 +35,16 @@ def get_response_value(item):
     raise NotImplementedError
 
 
-def generate_response(input):
+def generate_response(item):
     rval = """<?xml version='1.0'?>
     <methodResponse>
     <params>
     <param>
-    <value><array><data>
     """
 
-    for item in input:
-        rval += get_response_value(item)
+    rval += get_response_value(item)
 
-    rval += """</data></array></value>
-    </param>
+    rval += """</param>
     </params>
     </methodResponse>
     """
@@ -46,14 +52,14 @@ def generate_response(input):
     return rval
 
 
-def generate_fault_response(input):
+def generate_fault_response(item):
     rval = """<?xml version='1.0'?>
     <methodResponse>
     <fault>
     """
 
-    for item in input:
-        rval += get_response_value(item)
+    for value in item:
+        rval += get_response_value(value)
 
     rval += """</fault>
     </methodResponse>
