@@ -10,7 +10,7 @@ WEBFACTION_API_ENDPOINT = 'https://api.webfaction.com/'
 class WebFactionAPI(object):
     def __init__(self, user, password):
         self.username = user
-        self.server = xmlrpclib.Server(WEBFACTION_API_ENDPOINT, verbose=True)
+        self.server = xmlrpclib.Server(WEBFACTION_API_ENDPOINT)
         self.session_id, _ = self.server.login(self.username, password)
 
     def list_emails(self):
