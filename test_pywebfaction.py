@@ -229,7 +229,7 @@ def test_create_email():
             {
                 'email_address': 'foo@example.net',
                 'id': 42,
-                'targets': 'foobar9871',
+                'targets': 'foo_exampleorg',
             },
         )
     )
@@ -238,5 +238,35 @@ def test_create_email():
     response = api.create_email('foo@example.org')
 
     assert response.password == 'password1'
-    assert response.mailbox == 'foobar9871'
+    assert response.mailbox == 'foo_exampleorg'
     assert response.email_id == 42
+
+
+def test_email_to_mailbox_all_invalid():
+    with pytest.raises(ValueError):
+        WebFactionAPI.email_to_mailbox_name('*+@')
+
+
+def test_email_to_mailbox_empty_string():
+    with pytest.raises(ValueError):
+        WebFactionAPI.email_to_mailbox_name('')
+
+
+def test_email_to_mailbox_simple():
+    result = WebFactionAPI.email_to_mailbox_name('foo@example.org')
+    assert result == 'foo_exampleorg'
+
+
+def test_email_to_mailbox_invalid_stripped():
+    result = WebFactionAPI.email_to_mailbox_name('foo+b@example.org')
+    assert result == 'foob_exampleorg'
+
+
+def test_email_to_mailbox_uppercase_lowercased():
+    result = WebFactionAPI.email_to_mailbox_name('FOO@example.org')
+    assert result == 'foo_exampleorg'
+
+
+def test_email_to_mailbox_underscores_retained():
+    result = WebFactionAPI.email_to_mailbox_name('foo_b@example.org')
+    assert result == 'foo_b_exampleorg'
