@@ -28,14 +28,7 @@ setup(
     author='Dominic Rodger',
     author_email='dominicrodger@gmail.com',
     url='https://github.com/dominicrodger/pywebfaction',
-    packages=[
-        'pywebfaction',
-    ],
-    package_dir={'pywebfaction':
-                 'pywebfaction'},
     include_package_data=True,
-    install_requires=[
-    ],
     license="BSD",
     zip_safe=False,
     keywords='pywebfaction',
@@ -45,15 +38,13 @@ setup(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
     ],
     tests_require=[
         "pytest==2.5.2",
         "pytest-cov==1.6",
         "httpretty==0.8.0",
+        "lxml==3.2.4",
     ],
     cmdclass={'test': PyTest},
 )
