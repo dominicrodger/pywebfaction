@@ -1,18 +1,24 @@
-.PHONY: clean-pyc clean-build clean
+.PHONY: clean-pyc clean-build clean release test coverage flake8 docs
 
 help:
 	@echo "clean-build - remove build artifacts"
 	@echo "clean-pyc - remove Python file artifacts"
+	@echo "coverage - run tests to generate a code coverage report"
+	@echo "docs - rebuild the docs"
+	@echo "flake8 - run flake8 against the Python code"
 	@echo "release - package and upload a release"
-	@echo "dist - package"
+	@echo "test - run tests against all supported Python versions"
+
 
 clean: clean-build clean-pyc
-	rm -fr htmlcov/
+	rm -rf htmlcov/
 
 clean-build:
-	rm -fr build/
-	rm -fr dist/
-	rm -fr *.egg-info
+	rm -rf *.egg/
+	rm -rf __pycache__/
+	rm -rf build/
+	rm -rf dist/
+	rm -rf *.egg-info
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -23,7 +29,14 @@ release: clean
 	python setup.py sdist upload
 	python setup.py bdist_wheel upload
 
-dist: clean
-	python setup.py sdist
-	python setup.py bdist_wheel
-	ls -l dist
+test:
+	tox
+
+coverage:
+	py.test --cov-report term-missing --cov pywebfaction
+
+flake8:
+	tox -e flake8
+
+docs:
+	tox -e docs
