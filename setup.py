@@ -40,6 +40,9 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
     ],
+    install_requires=[
+        "six>=1.5.0",
+    ],
     tests_require=[
         "pytest==2.5.2",
         "pytest-cov==1.6",

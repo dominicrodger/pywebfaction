@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import string
-import xmlrpclib
+from six.moves import xmlrpc_client
 
 
 WEBFACTION_API_ENDPOINT = 'https://api.webfaction.com/'
@@ -11,7 +11,7 @@ WEBFACTION_API_ENDPOINT = 'https://api.webfaction.com/'
 class WebFactionAPI(object):
     def __init__(self, user, password):
         self.username = user
-        self.server = xmlrpclib.Server(WEBFACTION_API_ENDPOINT)
+        self.server = xmlrpc_client.Server(WEBFACTION_API_ENDPOINT)
         self.session_id, _ = self.server.login(self.username, password)
 
     def list_emails(self):
@@ -89,7 +89,7 @@ class WebFactionAPI(object):
                 email_result['id'],
             )
 
-        except xmlrpclib.Fault:
+        except xmlrpc_client.Fault:
             self.server.delete_mailbox(self.session_id, mailbox)
             raise
 

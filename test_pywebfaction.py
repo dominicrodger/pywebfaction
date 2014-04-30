@@ -1,8 +1,9 @@
 import httpretty
 import pytest
-import xmlrpclib
 from lxml import etree
-from StringIO import StringIO
+from six.moves import xmlrpc_client
+from six import StringIO
+from six import string_types
 from pywebfaction import WebFactionAPI, WEBFACTION_API_ENDPOINT
 
 
@@ -16,7 +17,7 @@ def get_response_value(item):
         rval += "</data></array></value>"
         return rval
 
-    if isinstance(item, basestring):
+    if isinstance(item, string_types):
         return '<value><string>%s</string></value>\n' % item
 
     if isinstance(item, int):
@@ -134,7 +135,7 @@ def test_failed_login():
         content_type="text/xml"
     )
 
-    with pytest.raises(xmlrpclib.Fault):
+    with pytest.raises(xmlrpc_client.Fault):
         WebFactionAPI('theuser', 'foobar')
 
 
