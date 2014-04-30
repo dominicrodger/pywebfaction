@@ -45,7 +45,6 @@ setup(
     ],
     tests_require=[
         "pytest==2.5.2",
-        "pytest-cov==1.6",
         "httpretty==0.8.0",
         "lxml==3.2.4",
     ],
