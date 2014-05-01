@@ -243,6 +243,32 @@ def test_create_email():
     assert response.email_id == 42
 
 
+@httpretty.activate
+def test_create_email_mailbox_exists():
+    register_response(
+        generate_response(
+            {
+                'password': 'password1',
+            },
+        ),
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Mailbox with this '
+                                    'Name already exists.\']'),
+                },
+            ]
+        )
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+
+    with pytest.raises(xmlrpc_client.Fault):
+        api.create_email('foo@example.org')
+
+
 def test_email_to_mailbox_all_invalid():
     with pytest.raises(ValueError):
         WebFactionAPI.email_to_mailbox_name('*+@')
