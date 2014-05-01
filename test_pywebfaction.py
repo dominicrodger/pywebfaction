@@ -339,6 +339,26 @@ def test_create_email_mailbox_exists_twice():
     assert params[1].text == 'foo_exampleorg2'
 
 
+@httpretty.activate
+def test_create_email_mailbox_fails_repeatedly():
+    register_response(
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Mailbox with this '
+                                    'Name already exists.\']'),
+                },
+            ]
+        ),
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    with pytest.raises(xmlrpc_client.Fault):
+        api.create_email('foo@example.org')
+
+
 def test_email_to_mailbox_all_invalid():
     with pytest.raises(ValueError):
         WebFactionAPI.email_to_mailbox_name('*+@')

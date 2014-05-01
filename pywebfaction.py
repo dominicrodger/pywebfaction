@@ -81,6 +81,9 @@ class WebFactionAPI(object):
                 else:
                     suffix += 1
 
+                if suffix > 10:
+                    raise
+
                 mailbox = '%s%d' % (mailbox_base, suffix)
 
         class EmailRequestResponse(object):
