@@ -64,11 +64,24 @@ class WebFactionAPI(object):
     def create_email(self, email_address):
         # Mailbox names may only contain lowercase letters, numbers
         # and _.
-        mailbox = WebFactionAPI.email_to_mailbox_name(email_address)
-        mailbox_result = self.server.create_mailbox(
-            self.session_id,
-            mailbox
-        )
+        mailbox_base = WebFactionAPI.email_to_mailbox_name(email_address)
+        mailbox = mailbox_base
+        suffix = None
+
+        while True:
+            try:
+                mailbox_result = self.server.create_mailbox(
+                    self.session_id,
+                    mailbox
+                )
+                break
+            except xmlrpc_client.Fault:
+                if not suffix:
+                    suffix = 1
+                else:
+                    suffix += 1
+
+                mailbox = '%s%d' % (mailbox_base, suffix)
 
         class EmailRequestResponse(object):
             def __init__(self, mailbox, password, email_id):

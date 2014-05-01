@@ -244,12 +244,60 @@ def test_create_email():
 
 
 @httpretty.activate
-def test_create_email_mailbox_exists():
+def test_create_email_mailbox_exists_once():
     register_response(
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Mailbox with this '
+                                    'Name already exists.\']'),
+                },
+            ]
+        ),
         generate_response(
             {
                 'password': 'password1',
             },
+        ),
+        generate_response(
+            {
+                'email_address': 'foo@example.net',
+                'id': 42,
+                'targets': 'foo_exampleorg1',
+            },
+        )
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    response = api.create_email('foo@example.org')
+
+    assert response.password == 'password1'
+    assert response.mailbox == 'foo_exampleorg1'
+    assert response.email_id == 42
+
+    requests = httpretty.httpretty.latest_requests
+    request = StringIO(requests[2].parsed_body)
+    tree = etree.parse(request)
+    params = tree.xpath('/methodCall/params/param/value/string')
+
+    assert len(params) == 2
+    assert params[1].text == 'foo_exampleorg1'
+
+
+@httpretty.activate
+def test_create_email_mailbox_exists_twice():
+    register_response(
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Mailbox with this '
+                                    'Name already exists.\']'),
+                },
+            ]
         ),
         generate_fault_response(
             [
@@ -260,13 +308,35 @@ def test_create_email_mailbox_exists():
                                     'Name already exists.\']'),
                 },
             ]
+        ),
+        generate_response(
+            {
+                'password': 'password1',
+            },
+        ),
+        generate_response(
+            {
+                'email_address': 'foo@example.net',
+                'id': 42,
+                'targets': 'foo_exampleorg2',
+            },
         )
     )
 
     api = WebFactionAPI('theuser', 'foobar')
+    response = api.create_email('foo@example.org')
 
-    with pytest.raises(xmlrpc_client.Fault):
-        api.create_email('foo@example.org')
+    assert response.password == 'password1'
+    assert response.mailbox == 'foo_exampleorg2'
+    assert response.email_id == 42
+
+    requests = httpretty.httpretty.latest_requests
+    request = StringIO(requests[3].parsed_body)
+    tree = etree.parse(request)
+    params = tree.xpath('/methodCall/params/param/value/string')
+
+    assert len(params) == 2
+    assert params[1].text == 'foo_exampleorg2'
 
 
 def test_email_to_mailbox_all_invalid():
