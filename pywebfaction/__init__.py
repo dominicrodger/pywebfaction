@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from pywebfaction.exceptions import WebFactionFault
 from pywebfaction.mailbox_name import email_to_mailbox_name
 from pywebfaction.utils import Email, EmailRequestResponse
 from six.moves import xmlrpc_client
@@ -13,12 +14,18 @@ class WebFactionAPI(object):
     def __init__(self, user, password):
         self.username = user
         self.server = xmlrpc_client.Server(WEBFACTION_API_ENDPOINT)
-        self.session_id, _ = self.server.login(self.username, password)
+        try:
+            self.session_id, _ = self.server.login(self.username, password)
+        except xmlrpc_client.Fault as e:
+            raise WebFactionFault(e)
 
     def list_emails(self):
-        response = self.server.list_emails(self.session_id)
+        try:
+            response = self.server.list_emails(self.session_id)
 
-        return [Email(r) for r in response]
+            return [Email(r) for r in response]
+        except xmlrpc_client.Fault as e:
+            raise WebFactionFault(e)
 
     def create_email(self, email_address):
         # Mailbox names may only contain lowercase letters, numbers
@@ -34,14 +41,14 @@ class WebFactionAPI(object):
                     mailbox
                 )
                 break
-            except xmlrpc_client.Fault:
+            except xmlrpc_client.Fault as e:
                 if not suffix:
                     suffix = 1
                 else:
                     suffix += 1
 
                 if suffix > 10:
-                    raise
+                    raise WebFactionFault(e)
 
                 mailbox = '%s%d' % (mailbox_base, suffix)
 
@@ -58,15 +65,21 @@ class WebFactionAPI(object):
                 email_result['id'],
             )
 
-        except xmlrpc_client.Fault:
-            self.server.delete_mailbox(self.session_id, mailbox)
-            raise
+        except xmlrpc_client.Fault as e:
+            try:
+                self.server.delete_mailbox(self.session_id, mailbox)
+            except xmlrpc_client.Fault as e:
+                raise WebFactionFault(e)
+            raise WebFactionFault(e)
 
     def create_email_forwarder(self, email_address, forwarding_addresses):
-        result = self.server.create_email(
-            self.session_id,
-            email_address,
-            ','.join(forwarding_addresses)
-        )
+        try:
+            result = self.server.create_email(
+                self.session_id,
+                email_address,
+                ','.join(forwarding_addresses)
+            )
 
-        return result['id']
+            return result['id']
+        except xmlrpc_client.Fault as e:
+            raise WebFactionFault(e)

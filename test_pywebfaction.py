@@ -1,11 +1,14 @@
 import httpretty
 import pytest
 from lxml import etree
-from six.moves import xmlrpc_client
 from six import StringIO
 from six import string_types
-from pywebfaction import WebFactionAPI, WEBFACTION_API_ENDPOINT
-from pywebfaction.mailbox_name import email_to_mailbox_name
+from pywebfaction import (
+    WebFactionAPI,
+    WEBFACTION_API_ENDPOINT,
+    email_to_mailbox_name,
+    WebFactionFault
+)
 
 
 def get_response_value(item):
@@ -136,7 +139,7 @@ def test_failed_login():
         content_type="text/xml"
     )
 
-    with pytest.raises(xmlrpc_client.Fault):
+    with pytest.raises(WebFactionFault):
         WebFactionAPI('theuser', 'foobar')
 
 
@@ -356,7 +359,7 @@ def test_create_email_mailbox_fails_repeatedly():
     )
 
     api = WebFactionAPI('theuser', 'foobar')
-    with pytest.raises(xmlrpc_client.Fault):
+    with pytest.raises(WebFactionFault):
         api.create_email('foo@example.org')
 
 
@@ -384,7 +387,7 @@ def test_create_email_address_exists():
     )
 
     api = WebFactionAPI('theuser', 'foobar')
-    with pytest.raises(xmlrpc_client.Fault):
+    with pytest.raises(WebFactionFault):
         api.create_email('foo@example.org')
 
     request = StringIO(httpretty.last_request().parsed_body)

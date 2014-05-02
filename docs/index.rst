@@ -68,23 +68,26 @@ address to create), and returns a response object containing the
 mailbox name and password (which you'll need for setting up your
 email client), and the ID of the email address created.
 
-Any errors encountered will raise the underlying ``xmlrpclib.Fault``
-exception, except for the case where the provided email address is
-empty, or contains no characters that are valid as part of the
-generated mailbox name (in this case, ``ValueError`` will be raised).
+Any errors encountered will raise a ``WebFactionFault`` exception,
+except for the case where the provided email address is empty, or
+contains no characters that are valid as part of the generated
+mailbox name (in this case, ``ValueError`` will be raised).
 
 Usage is:
 
 .. code-block:: python
 
-    from pywebfaction import WebFactionAPI
+    from pywebfaction import WebFactionAPI, WebFactionFault
 
-    api = WebFactionAPI(username, password)
-    response = api.create_email('dominic@example.com')
+    try:
+        api = WebFactionAPI(username, password)
+        response = api.create_email('dominic@example.com')
 
-    print response.mailbox
-    print response.password
-    print response.email_id
+        print response.mailbox
+        print response.password
+        print response.email_id
+    except WebFactionFault as e:
+        print e
 
 ``create_email_forwarder``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
