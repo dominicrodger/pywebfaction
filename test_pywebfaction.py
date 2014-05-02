@@ -190,6 +190,31 @@ def test_list_emails():
 
 
 @httpretty.activate
+def test_list_emails_failure():
+    register_response(
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ("&lt;class \'webfaction_api.exceptions."
+                                    "DataError\'&gt;:[u\'We don\\\'t want to "
+                                    "give you that.\']"),
+                },
+            ]
+        ),
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    with pytest.raises(WebFactionFault) as excinfo:
+        api.list_emails()
+
+    assert excinfo.value.exception_type == 'DataError'
+    assert excinfo.value.exception_message == (
+        "We don't want to give you that."
+    )
+
+
+@httpretty.activate
 def test_create_email_forwarder():
     register_response(
         generate_response(
@@ -223,6 +248,33 @@ def test_create_email_forwarder():
     assert parameters[0].text == 'thesession_id'
     assert parameters[1].text == 'foo@example.org'
     assert parameters[2].text == 'test@example.com,bar@example.net'
+
+
+@httpretty.activate
+def test_create_email_forwarder_failure():
+    register_response(
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Email with this '
+                                    'Username and Subdomain already '
+                                    'exists.\']'),
+                },
+            ]
+        ),
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+
+    with pytest.raises(WebFactionFault) as excinfo:
+        api.create_email_forwarder('foo@example.com', ['hello@example.net'])
+
+    assert excinfo.value.exception_type == 'DataError'
+    assert excinfo.value.exception_message == (
+        'Email with this Username and Subdomain already exists.'
+    )
 
 
 @httpretty.activate
@@ -413,6 +465,47 @@ def test_create_email_address_exists():
     assert method[0].text == 'delete_mailbox'
     assert params[0].text == 'thesession_id'
     assert params[1].text == 'foo_exampleorg'
+
+
+@httpretty.activate
+def test_create_email_address_exists_and_mailbox_deletion_fails():
+    register_response(
+        generate_response(
+            {
+                'password': 'password1',
+            },
+        ),
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Email with this '
+                                    'Username and Subdomain already '
+                                    'exists.\']'),
+                },
+            ]
+        ),
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions'
+                                    '.DataError\'&gt;:[u\'Mailbox ist '
+                                    'kaput\']'),
+                }
+            ]
+        )
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    with pytest.raises(WebFactionFault) as excinfo:
+        api.create_email('foo@example.org')
+
+    assert excinfo.value.exception_type == 'DataError'
+    assert excinfo.value.exception_message == (
+        'Email with this Username and Subdomain already exists.'
+    )
 
 
 def test_email_to_mailbox_all_invalid():
