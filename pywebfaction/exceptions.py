@@ -29,7 +29,7 @@ def _parse_exc_message(exc_message):
             return None
         return message[0]
 
-    return message
+    return None
 
 
 class WebFactionFault(Exception):

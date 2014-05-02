@@ -443,3 +443,69 @@ def test_email_to_mailbox_uppercase_lowercased():
 def test_email_to_mailbox_underscores_retained():
     result = email_to_mailbox_name('foo_b@example.org')
     assert result == 'foo_b_exampleorg'
+
+
+def _get_fault(message):
+    class FakeFault(object):
+        def __init__(self, message):
+            self.faultString = message
+
+    fake = FakeFault(message)
+    return WebFactionFault(fake)
+
+
+def test_exception_parsing():
+    err = _get_fault(
+        '<class \'webfaction_api.exceptions.DataError\'>:'
+        '[u\'It all went wrong.\']'
+    )
+
+    assert err.exception_type == 'DataError'
+    assert err.exception_message == 'It all went wrong.'
+
+
+def test_exception_parsing_bad_type_prefix():
+    err = _get_fault(
+        '<class \'webfaction_api.exception.DataError\'>:'
+        '[u\'It all went wrong.\']'
+    )
+
+    assert err.exception_type is None
+    assert err.exception_message == 'It all went wrong.'
+
+
+def test_exception_parsing_bad_type_suffix():
+    err = _get_fault(
+        '<class \'webfaction_api.exceptions.DataError\':'
+        '[u\'It all went wrong.\']'
+    )
+
+    assert err.exception_type is None
+    assert err.exception_message == 'It all went wrong.'
+
+
+def test_exception_parsing_bad_length():
+    err = _get_fault('')
+
+    assert err.exception_type is None
+    assert err.exception_type is None
+
+
+def test_exception_parsing_message_is_not_a_list():
+    err = _get_fault(
+        '<class \'webfaction_api.exceptions.DataError\'>:'
+        'u\'It all went wrong.\''
+    )
+
+    assert err.exception_type == 'DataError'
+    assert err.exception_message is None
+
+
+def test_exception_parsing_message_is_an_empty_list():
+    err = _get_fault(
+        '<class \'webfaction_api.exceptions.DataError\'>:'
+        '[]'
+    )
+
+    assert err.exception_type == 'DataError'
+    assert err.exception_message is None
