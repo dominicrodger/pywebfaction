@@ -87,7 +87,8 @@ Usage is:
         print response.password
         print response.email_id
     except WebFactionFault as e:
-        print e
+        print e.exception_type  # e.g. 'DataError'
+        print e.message  # e.g. 'Mailbox with this Name already exists.'
 
 ``create_email_forwarder``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^

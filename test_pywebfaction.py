@@ -139,8 +139,11 @@ def test_failed_login():
         content_type="text/xml"
     )
 
-    with pytest.raises(WebFactionFault):
+    with pytest.raises(WebFactionFault) as excinfo:
         WebFactionAPI('theuser', 'foobar')
+
+    assert excinfo.value.exception_type == 'LoginError'
+    assert excinfo.value.exception_message is None
 
 
 @httpretty.activate
@@ -359,8 +362,13 @@ def test_create_email_mailbox_fails_repeatedly():
     )
 
     api = WebFactionAPI('theuser', 'foobar')
-    with pytest.raises(WebFactionFault):
+    with pytest.raises(WebFactionFault) as excinfo:
         api.create_email('foo@example.org')
+
+    assert excinfo.value.exception_type == 'DataError'
+    assert excinfo.value.exception_message == (
+        'Mailbox with this Name already exists.'
+    )
 
 
 @httpretty.activate
@@ -387,8 +395,13 @@ def test_create_email_address_exists():
     )
 
     api = WebFactionAPI('theuser', 'foobar')
-    with pytest.raises(WebFactionFault):
+    with pytest.raises(WebFactionFault) as excinfo:
         api.create_email('foo@example.org')
+
+    assert excinfo.value.exception_type == 'DataError'
+    assert excinfo.value.exception_message == (
+        'Email with this Username and Subdomain already exists.'
+    )
 
     request = StringIO(httpretty.last_request().parsed_body)
     tree = etree.parse(request)
