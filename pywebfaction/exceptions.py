@@ -33,8 +33,12 @@ def _parse_exc_message(exc_message):
 
 
 class WebFactionFault(Exception):
-    def __init__(self, underlying_fault):
-        self.underlying_fault = underlying_fault
-        exc_type, exc_message = underlying_fault.faultString.split(':', 1)
-        self.exception_type = _parse_exc_type(exc_type)
-        self.exception_message = _parse_exc_message(exc_message)
+    def __init__(self, underlying):
+        self.underlying_fault = underlying
+        try:
+            exc_type, exc_message = underlying.faultString.split(':', 1)
+            self.exception_type = _parse_exc_type(exc_type)
+            self.exception_message = _parse_exc_message(exc_message)
+        except ValueError:
+            self.exception_type = None
+            self.exception_message = None
