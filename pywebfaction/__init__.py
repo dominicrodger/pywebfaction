@@ -64,13 +64,12 @@ class WebFactionAPI(object):
                 mailbox_result['password'],
                 email_result['id'],
             )
-
-        except xmlrpc_client.Fault as e:
+        except xmlrpc_client.Fault as email_creation_failure:
             try:
                 self.server.delete_mailbox(self.session_id, mailbox)
-            except xmlrpc_client.Fault as e:
-                raise WebFactionFault(e)
-            raise WebFactionFault(e)
+            except xmlrpc_client.Fault:
+                raise WebFactionFault(email_creation_failure)
+            raise WebFactionFault(email_creation_failure)
 
     def create_email_forwarder(self, email_address, forwarding_addresses):
         try:
