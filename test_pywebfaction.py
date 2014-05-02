@@ -359,6 +359,45 @@ def test_create_email_mailbox_fails_repeatedly():
         api.create_email('foo@example.org')
 
 
+@httpretty.activate
+def test_create_email_address_exists():
+    register_response(
+        generate_response(
+            {
+                'password': 'password1',
+            },
+        ),
+        generate_fault_response(
+            [
+                {
+                    'faultCode': 1,
+                    'faultString': ('&lt;class \'webfaction_api.exceptions.'
+                                    'DataError\'&gt;:[u\'Email with this '
+                                    'Username and Subdomain already '
+                                    'exists.\']'),
+                },
+            ]
+        ),
+        # Response for delete_mailbox is fairly empty
+        generate_response({}),
+    )
+
+    api = WebFactionAPI('theuser', 'foobar')
+    with pytest.raises(xmlrpc_client.Fault):
+        api.create_email('foo@example.org')
+
+    request = StringIO(httpretty.last_request().parsed_body)
+    tree = etree.parse(request)
+    method = tree.xpath('/methodCall/methodName')
+    params = tree.xpath('/methodCall/params/param/value/string')
+
+    assert len(method) == 1
+    assert len(params) == 2
+    assert method[0].text == 'delete_mailbox'
+    assert params[0].text == 'thesession_id'
+    assert params[1].text == 'foo_exampleorg'
+
+
 def test_email_to_mailbox_all_invalid():
     with pytest.raises(ValueError):
         WebFactionAPI.email_to_mailbox_name('*+@')
