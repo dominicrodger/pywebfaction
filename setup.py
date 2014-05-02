@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 import sys
 
@@ -28,6 +28,7 @@ setup(
     author='Dominic Rodger',
     author_email='dominicrodger@gmail.com',
     url='https://github.com/dominicrodger/pywebfaction',
+    packages=find_packages(),
     include_package_data=True,
     license="BSD",
     zip_safe=False,
