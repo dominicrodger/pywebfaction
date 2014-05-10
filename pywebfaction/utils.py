@@ -10,6 +10,9 @@ class Email(object):
         self.forwards_to = [e for e in targets
                             if not is_mailbox(e) and e]
 
+    def __str__(self):
+        return self.address
+
 
 class EmailRequestResponse(object):
     def __init__(self, mailbox, password, email_id):
