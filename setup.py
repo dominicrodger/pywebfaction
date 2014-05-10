@@ -22,7 +22,7 @@ readme = open('README.rst').read()
 
 setup(
     name='pywebfaction',
-    version='0.1.0',
+    version='0.1.1',
     description='A tool for interacting with the WebFaction API.',
     long_description=readme,
     author='Dominic Rodger',
@@ -43,8 +43,15 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ],
+    entry_points={
+        'console_scripts': [
+            'pywebfaction = pywebfaction.cli:main',
+        ],
+    },
     install_requires=[
         "six>=1.5.0",
+        "tabulate",
+        "docopt",
     ],
     tests_require=[
         "pytest==2.5.2",
