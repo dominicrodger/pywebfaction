@@ -22,7 +22,7 @@ readme = open('README.rst').read()
 
 setup(
     name='pywebfaction',
-    version='0.1.1',
+    version='0.1.2',
     description='A tool for interacting with the WebFaction API.',
     long_description=readme,
     author='Dominic Rodger',

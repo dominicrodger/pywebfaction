@@ -32,9 +32,6 @@ Next steps
 
 These will probably be done for 0.1.2.
 
-* Remove the ``--username`` and ``--password`` options from the
-  command-line client, and use an ini file instead (and write a tool
-  for creating the ini file for you);
 * Add the ability to remove an email address;
 * Ensure any exceptions in the command-line client return an exit
   status correctly.
