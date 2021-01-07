@@ -56,7 +56,7 @@ setup(
     tests_require=[
         "pytest==2.5.2",
         "httpretty==0.8.0",
-        "lxml==3.2.4",
+        "lxml==4.6.2",
     ],
     cmdclass={'test': PyTest},
 )
